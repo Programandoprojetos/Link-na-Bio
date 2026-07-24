@@ -39,6 +39,12 @@
 
     <main class="page-shell">
       <article class="profile-board" aria-labelledby="page-title">
+        <button class="music-toggle" type="button" aria-pressed="false">
+          <i data-lucide="music-2" aria-hidden="true"></i>
+          <span>Tocar música</span>
+        </button>
+        <audio id="page-music" src="assets/thunder.mp3" preload="auto" autoplay loop></audio>
+
         <header class="hero">
           <figure class="portrait-ring">
             <img
@@ -271,6 +277,46 @@
             "stroke-width": 2.2
           }
         });
+      }
+
+      const music = document.querySelector("#page-music");
+      const musicToggle = document.querySelector(".music-toggle");
+
+      if (music && musicToggle) {
+        music.volume = 0.45;
+        const musicLabel = musicToggle.querySelector("span");
+
+        const setMusicState = (isPlaying) => {
+          musicToggle.classList.toggle("is-playing", isPlaying);
+          musicToggle.setAttribute("aria-pressed", String(isPlaying));
+          if (musicLabel) musicLabel.textContent = isPlaying ? "Pausar música" : "Tocar música";
+        };
+
+        const tryAutoplay = async () => {
+          try {
+            await music.play();
+            setMusicState(true);
+          } catch (error) {
+            setMusicState(false);
+            // Browsers may block autoplay with sound until the user interacts.
+          }
+        };
+
+        musicToggle.addEventListener("click", async () => {
+          if (music.paused) {
+            try {
+              await music.play();
+              setMusicState(true);
+            } catch (error) {
+              if (musicLabel) musicLabel.textContent = "Toque novamente";
+            }
+          } else {
+            music.pause();
+            setMusicState(false);
+          }
+        });
+
+        window.addEventListener("load", tryAutoplay, { once: true });
       }
     </script>
   </body>
