@@ -203,6 +203,32 @@
 
             <div class="work-item">
             <a
+              class="work-card support"
+              href="https://api.whatsapp.com/send?phone=5564996488062&text=Ol%C3%A1%20Luis%20Henrique%2C%20quero%20saber%20mais%20sobre%20suporte%20e%20consultoria."
+              target="_blank"
+              rel="noopener"
+            >
+              <span class="work-logo support-logo">
+                <img src="assets/support-logo.png" alt="Suporte e Consultoria" width="640" height="640" />
+              </span>
+              <div class="work-content">
+                <h3>Suporte e Consultoria</h3>
+                <p>Atendimento técnico para resolver, orientar e melhorar seus projetos</p>
+                <ul class="feature-grid">
+                  <li><i data-lucide="message-circle" aria-hidden="true"></i> Atendimento Personalizado</li>
+                  <li><i data-lucide="monitor-cog" aria-hidden="true"></i> Suporte Técnico</li>
+                  <li><i data-lucide="clipboard-check" aria-hidden="true"></i> Diagnóstico</li>
+                  <li><i data-lucide="shield-check" aria-hidden="true"></i> Orientação Segura</li>
+                  <li><i data-lucide="timer-reset" aria-hidden="true"></i> Resposta Rápida</li>
+                  <li><i data-lucide="handshake" aria-hidden="true"></i> Soluções sob Medida</li>
+                </ul>
+              </div>
+              <span class="access-box"><i data-lucide="chevron-right" aria-hidden="true"></i><strong>Acessar</strong></span>
+            </a>
+            </div>
+
+            <div class="work-item">
+            <a
               class="work-card cyan"
               href="https://devportfolio-nu-vert.vercel.app/"
               target="_blank"
@@ -317,6 +343,42 @@
         });
 
         window.addEventListener("load", tryAutoplay, { once: true });
+      }
+
+      const workCards = Array.from(document.querySelectorAll(".work-card"));
+
+      if (workCards.length) {
+        const activateCard = (activeCard) => {
+          workCards.forEach((card) => {
+            card.classList.toggle("is-active", card === activeCard);
+          });
+        };
+
+        workCards.forEach((card) => {
+          card.addEventListener("pointerdown", () => activateCard(card));
+          card.addEventListener("focus", () => activateCard(card));
+          card.addEventListener("blur", () => card.classList.remove("is-active"));
+        });
+
+        if ("IntersectionObserver" in window) {
+          const cardObserver = new IntersectionObserver(
+            (entries) => {
+              const visibleCard = entries
+                .filter((entry) => entry.isIntersecting)
+                .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+              if (visibleCard) {
+                activateCard(visibleCard.target);
+              }
+            },
+            {
+              threshold: [0.42, 0.58, 0.72],
+              rootMargin: "-18% 0px -30% 0px"
+            }
+          );
+
+          workCards.forEach((card) => cardObserver.observe(card));
+        }
       }
     </script>
   </body>
