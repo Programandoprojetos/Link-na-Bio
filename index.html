@@ -318,6 +318,11 @@
           if (musicLabel) musicLabel.textContent = isPlaying ? "Pausar música" : "Tocar música";
         };
 
+        const stopMusic = () => {
+          music.pause();
+          setMusicState(false);
+        };
+
         const tryAutoplay = async () => {
           try {
             await music.play();
@@ -337,12 +342,18 @@
               if (musicLabel) musicLabel.textContent = "Toque novamente";
             }
           } else {
-            music.pause();
-            setMusicState(false);
+            stopMusic();
           }
         });
 
         window.addEventListener("load", tryAutoplay, { once: true });
+        window.addEventListener("pagehide", stopMusic);
+        window.addEventListener("beforeunload", stopMusic);
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) {
+            stopMusic();
+          }
+        });
       }
 
       const workCards = Array.from(document.querySelectorAll(".work-card"));
