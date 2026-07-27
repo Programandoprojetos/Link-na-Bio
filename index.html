@@ -289,6 +289,11 @@
             <li><i data-lucide="handshake" aria-hidden="true"></i> Atendimento Personalizado</li>
             <li><i data-lucide="badge-check" aria-hidden="true"></i> Satisfação Garantida</li>
           </ul>
+
+          <div class="visit-counter" aria-live="polite">
+            <i data-lucide="eye" aria-hidden="true"></i>
+            <span><strong id="visit-count">...</strong><small id="visit-label">visitas este mes</small></span>
+          </div>
         </section>
 
         <p class="signature">Conte comigo para tirar seu <strong>projeto</strong> do papel!</p>
@@ -389,6 +394,65 @@
           );
 
           workCards.forEach((card) => cardObserver.observe(card));
+        }
+      }
+    </script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+      import {
+        doc,
+        getFirestore,
+        runTransaction,
+        serverTimestamp
+      } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDilHJUjv3tLGGmTon0wHq-owCGlSIMI30",
+        authDomain: "contador-de-visita-1b832.firebaseapp.com",
+        projectId: "contador-de-visita-1b832",
+        storageBucket: "contador-de-visita-1b832.firebasestorage.app",
+        messagingSenderId: "251394423433",
+        appId: "1:251394423433:web:87383ab4ef359ff23da458",
+        measurementId: "G-5D59W6LVKJ"
+      };
+
+      const visitCount = document.querySelector("#visit-count");
+      const visitLabel = document.querySelector("#visit-label");
+
+      if (visitCount && visitLabel) {
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const now = new Date();
+        const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+        const counterRef = doc(db, "siteStats", "monthlyVisits");
+
+        try {
+          const totalVisits = await runTransaction(db, async (transaction) => {
+            const snapshot = await transaction.get(counterRef);
+
+            if (!snapshot.exists() || snapshot.data().month !== monthKey) {
+              transaction.set(counterRef, {
+                month: monthKey,
+                count: 1,
+                updatedAt: serverTimestamp()
+              });
+              return 1;
+            }
+
+            const nextCount = Number(snapshot.data().count || 0) + 1;
+            transaction.update(counterRef, {
+              count: nextCount,
+              updatedAt: serverTimestamp()
+            });
+            return nextCount;
+          });
+
+          visitCount.textContent = new Intl.NumberFormat("pt-BR").format(totalVisits);
+          visitLabel.textContent = "visitas este mes";
+        } catch (error) {
+          visitCount.textContent = "--";
+          visitLabel.textContent = "contador indisponivel";
+          console.error("Erro ao atualizar contador de visitas:", error);
         }
       }
     </script>
